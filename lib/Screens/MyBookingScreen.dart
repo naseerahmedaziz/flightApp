@@ -25,8 +25,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     super.dispose();
   }
 
-  CollectionReference _reference =
-      FirebaseFirestore.instance.collection('Booking');
+  Future<List<DocumentSnapshot>> fetchDataForUser(String userId) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('Booking')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    List<DocumentSnapshot> documents = querySnapshot.docs;
+    return documents;
+  }
 
   @override
   Widget build(BuildContext context) {

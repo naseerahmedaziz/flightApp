@@ -5,7 +5,7 @@ UserModel userModelFromJson(String str) => UserModel.fromJson(json.decode(str));
 String userModelToJson(UserModel data) => json.encode(data.toJson());
 
 class UserModel {
-  final String? id;
+  final String? userId;
   final String? firstName;
   final String? lastName;
   final String? phoneNo;
@@ -16,7 +16,7 @@ class UserModel {
   String arr;
 
   UserModel({
-    this.id,
+    this.userId,
     this.firstName,
     this.lastName,
     this.phoneNo,
@@ -28,7 +28,7 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-        id: json["id"],
+        userId: json["userId"],
         firstName: json["firstName"],
         lastName: json["lastName"],
         phoneNo: json["phoneNo"],

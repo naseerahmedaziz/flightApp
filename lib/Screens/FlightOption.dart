@@ -1,8 +1,12 @@
+import 'package:flightapp/Screens/Login.dart';
+import 'package:flightapp/Screens/SplashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'TravellerScreen.dart';
 import '../Bloc/FliBloc.dart';
 import '../model/FlightModel.dart';
+import '../app_state.dart';
+import 'package:provider/provider.dart';
 
 class FlightOptionPage extends StatefulWidget {
   final String from;
@@ -67,12 +71,25 @@ class _FlightOptionPageState extends State<FlightOptionPage> {
                 FlightModel flight = snapshot.data![index];
                 return GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TravellerScreen(flight: flight),
-                      ),
-                    );
+                    bool isLoggedIn =
+                        Provider.of<AppState>(context, listen: false)
+                            .isLoggedIn;
+
+                    if (isLoggedIn) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TravellerScreen(flight: flight),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(),
+                        ),
+                      );
+                    }
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

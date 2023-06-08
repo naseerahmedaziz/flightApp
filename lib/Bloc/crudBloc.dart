@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 
 // import 'package:firebase_auth/firebase_auth.dart';
@@ -89,22 +89,27 @@ class crudBloc {
 
   Future<List<UserModel>> fetchRecord() async {
     try {
-      // Retrieve data from Firestore
-      QuerySnapshot snapshot = await _refernce.get();
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String userId = user.uid;
 
-      // Extract the documents and map them to Student objects
-      List<UserModel> booking = snapshot.docs.map((doc) {
-        String id = doc.id;
-        String firstName = doc.get('firstName');
-        String lastName = doc.get('lastName');
-        String phoneNo = doc.get('phoneNo');
-        String flightIata = doc.get('flightIata');
-        String from = doc.get('from');
-        String to = doc.get('to'); //issue hosaktahai
-        String dep = doc.get('dep');
-        String arr = doc.get('arr');
-        return UserModel(
-            id: id,
+        // Retrieve data from Firestore
+        QuerySnapshot snapshot =
+            await _refernce.where('userId', isEqualTo: userId).get();
+
+        // Extract the documents and map them to UserModel objects
+        List<UserModel> bookings = snapshot.docs.map((doc) {
+          String id = doc.id;
+          String firstName = doc.get('firstName');
+          String lastName = doc.get('lastName');
+          String phoneNo = doc.get('phoneNo');
+          String flightIata = doc.get('flightIata');
+          String from = doc.get('from');
+          String to = doc.get('to');
+          String dep = doc.get('dep');
+          String arr = doc.get('arr');
+          return UserModel(
+            userId: id,
             firstName: firstName,
             lastName: lastName,
             phoneNo: phoneNo,
@@ -112,42 +117,52 @@ class crudBloc {
             from: from,
             to: to,
             dep: dep,
-            arr: arr);
-      }).toList();
+            arr: arr,
+          );
+        }).toList();
 
-      // Return the list of students
-      print(booking);
-      return booking;
+        // Return the list of bookings
+        print(bookings);
+        return bookings;
+      } else {
+        throw Exception('User not found');
+      }
     } catch (e) {
-      // Handle any errors that occurred during fetching
       throw Exception('Error fetching records: $e');
     }
   }
 
   Future<void> insertRecord(UserModel booking) async {
     try {
-      print("trying to insert");
-      // Get a reference to the Firestore collection
-      CollectionReference studentsCollection =
-          FirebaseFirestore.instance.collection('Booking');
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String userId = user.uid;
 
-      // Create a map from the student object
-      Map<String, dynamic> bookingData = {
-        'firstName': booking.firstName,
-        'lastName': booking.lastName,
-        'phoneNo': booking.phoneNo,
-        'flightIata': booking.flightIata,
-        'from': booking.from,
-        'to': booking.to,
-        'dep': booking.dep,
-        'arr': booking.arr,
-      };
+        // Get a reference to the Firestore collection
+        CollectionReference bookingCollection =
+            FirebaseFirestore.instance.collection('Booking');
 
-      // Insert the data into Firestore
-      await studentsCollection.add(bookingData);
+        // Create a map from the booking object
+        Map<String, dynamic> bookingData = {
+          'userId': userId, // Add the user ID to the data
+          'firstName': booking.firstName,
+          'lastName': booking.lastName,
+          'phoneNo': booking.phoneNo,
+          'flightIata': booking.flightIata,
+          'from': booking.from,
+          'to': booking.to,
+          'dep': booking.dep,
+          'arr': booking.arr,
+        };
 
-      // Data inserted successfully
-      print('Data inserted successfully!');
+        // Insert the data into Firestore
+        await bookingCollection.add(bookingData);
+
+        // Data inserted successfully
+        print('Data inserted successfully!');
+      } else {
+        throw Exception('User not found');
+      }
     } catch (e) {
       // Error occurred while inserting data
       print('Error inserting data: $e');
@@ -158,7 +173,7 @@ class crudBloc {
     try {
       final CollectionReference =
           FirebaseFirestore.instance.collection("Booking");
-      CollectionReference.doc(booking.id).delete();
+      CollectionReference.doc(booking.userId).delete();
     } catch (e) {
       print('Error deletuing  data: $e');
     }

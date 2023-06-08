@@ -2,10 +2,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flightapp/Screens/searchBottomSheetFrom.dart';
-
+import '../app_state.dart';
+import 'package:provider/provider.dart';
 import '../Bloc/FliBloc.dart';
 import 'FlightOption.dart';
 import 'MyBookingScreen.dart';
+import 'Login.dart';
+import '../Theme/theme_provider.dart';
 
 class FlightBookingPage extends StatefulWidget {
   @override
@@ -31,7 +34,6 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
     _textEditingControllerFrom = TextEditingController();
     _textEditingControllerTo = TextEditingController();
     departureDate = DateTime.now();
-
     returnDate = DateTime.now();
   }
 
@@ -50,6 +52,8 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     _textEditingControllerFrom.text = flyingFrom;
     _textEditingControllerFrom.selection =
         TextSelection.fromPosition(TextPosition(offset: flyingFrom.length));
@@ -64,9 +68,10 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
           'Flight Booking',
         ),
         elevation: 0,
+        backgroundColor: Colors.teal,
       ),
       body: Container(
-        color: Colors.white,
+        color: themeProvider.themeData.scaffoldBackgroundColor,
         padding: EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -84,13 +89,12 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
               SizedBox(height: 16.0),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
+                      color: Colors.grey.withOpacity(0.1),
                       spreadRadius: 5,
-                      blurRadius: 7,
+                      blurRadius: 1,
                       offset: Offset(0, 3),
                     ),
                   ],
@@ -114,7 +118,19 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
                         },
                         decoration: InputDecoration(
                           labelText: 'Flying From',
-                          prefixIcon: Icon(Icons.flight_land),
+                          labelStyle: TextStyle(
+                            color: Colors.teal,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.flight_land,
+                            color: Colors.teal,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.teal,
+                              width: 2.0,
+                            ),
+                          ),
                           suffixIcon: GestureDetector(
                             onTap: () async {
                               final selectedData =
@@ -151,7 +167,19 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
                         },
                         decoration: InputDecoration(
                           labelText: 'Flying To',
-                          prefixIcon: Icon(Icons.flight_land),
+                          labelStyle: TextStyle(
+                            color: Colors.teal,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.flight_land,
+                            color: Colors.teal,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.teal,
+                              width: 2.0,
+                            ),
+                          ),
                           suffixIcon: GestureDetector(
                             onTap: () async {
                               final selectedData =
@@ -221,9 +249,10 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => FlightOptionPage(
-                                  from: flyingFrom,
-                                  to: flyingTo,
-                                  selectedDate: departureDate),
+                                from: flyingFrom,
+                                to: flyingTo,
+                                selectedDate: departureDate,
+                              ),
                             ),
                           );
                         },
@@ -250,6 +279,15 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final themeProvider =
+              Provider.of<ThemeProvider>(context, listen: false);
+          themeProvider.toggleTheme();
+        },
+        child: Icon(Icons.lightbulb),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
         notchMargin: 20,
@@ -265,9 +303,9 @@ class _FlightBookingPageState extends State<FlightBookingPage> {
               icon: Icon(Icons.flight),
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MyBookingsScreen()));
+                  context,
+                  MaterialPageRoute(builder: (context) => MyBookingsScreen()),
+                );
               },
             ),
           ],
